@@ -1,5 +1,9 @@
 # F5-TTS: A Fairytaler that Fakes Fluent and Faithful Speech with Flow Matching
 
+> **本 fork（Intel 核显微调版）说明请先看 [README_INTEL.md](README_INTEL.md)**（中文：32uwgy 音色微调、XPU 推理服务、复现手册）。
+> 下文为上游官方原文（[SWivid/F5-TTS](https://github.com/SWivid/F5-TTS)，MIT），本 fork 未修改。
+---
+
 [![python](https://img.shields.io/badge/Python-3.10-brightgreen)](https://github.com/SWivid/F5-TTS)
 [![arXiv](https://img.shields.io/badge/arXiv-2410.06885-b31b1b.svg?logo=arXiv)](https://arxiv.org/abs/2410.06885)
 [![demo](https://img.shields.io/badge/GitHub-Demo-orange.svg)](https://swivid.github.io/F5-TTS/)
