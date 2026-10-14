@@ -52,7 +52,7 @@ if params.get("ckpt"):
     argv += ["--ckpt_file", params["ckpt"]]
 sys.argv = argv
 
-from f5_tts.infer.infer_cli import main
+from f5_tts.infer.infer_cli import main  # noqa: E402 -- argv must be set before this import-time parse
 
 
 main()

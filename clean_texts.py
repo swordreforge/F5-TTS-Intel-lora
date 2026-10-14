@@ -111,7 +111,7 @@ def main():
                 s = s.strip()
                 if not s:
                     continue
-                if not s[-1] in "。！？…":
+                if s[-1] not in "。！？…":
                     s += "。"
                 if len(s) < MIN_CHARS:
                     continue

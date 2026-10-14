@@ -20,6 +20,9 @@ from pathlib import Path
 import soundfile as sf
 import torch
 import torchaudio
+from fastapi import FastAPI, Response
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 
 
 def _load(path, *args, **kwargs):
@@ -32,12 +35,12 @@ def _info(path, *args, **kwargs):
     return type("I", (), {"sample_rate": info.samplerate, "num_frames": info.frames})()
 
 
-torchaudio.load = _load
-torchaudio.info = _info
+def install_shims():
+    torchaudio.load = _load
+    torchaudio.info = _info
 
-from fastapi import FastAPI, Response
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+
+install_shims()
 
 
 BASE = Path("/home/swordreforge/F5-TTS")

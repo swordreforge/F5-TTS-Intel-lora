@@ -20,8 +20,8 @@ print("csv rows:", len(rows))
 # new-scheme lines per source
 new_lines = {}
 for f in sorted(CLEAN.glob("*.clean.txt")):
-    new_lines[f.stem] = [l for l in f.read_text(encoding="utf-8").splitlines() if l.strip()]
-newset = {l for v in new_lines.values() for l in v}
+    new_lines[f.stem] = [line for line in f.read_text(encoding="utf-8").splitlines() if line.strip()]
+newset = {line for v in new_lines.values() for line in v}
 
 # result.txt split (old scheme source)
 rt = RESULT.read_text(encoding="utf-8")
@@ -71,7 +71,7 @@ MISS = BASE / "data/missing"
 MISS.mkdir(exist_ok=True)
 total = 0
 for stem, lines in new_lines.items():
-    miss = [l for l in lines if l not in covered]
+    miss = [line for line in lines if line not in covered]
     if miss:
         (MISS / f"{stem}.miss.txt").write_text("\n".join(miss) + "\n", encoding="utf-8")
     print(f"{stem}: {len(lines)} lines, missing {len(miss)}")

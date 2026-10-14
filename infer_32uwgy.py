@@ -17,7 +17,6 @@ import json
 import re
 import shutil
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 
@@ -110,7 +109,7 @@ def main():
 
     ckpt = None if args.ckpt == "base" else (FINETUNED_CKPT if args.ckpt == "finetuned" else args.ckpt)
     if args.text_file:
-        sens = [l.strip() for l in Path(args.text_file).read_text(encoding="utf-8").splitlines() if l.strip()]
+        sens = [line.strip() for line in Path(args.text_file).read_text(encoding="utf-8").splitlines() if line.strip()]
         gen_text = "\n".join(sens)
     else:
         gen_text = args.text

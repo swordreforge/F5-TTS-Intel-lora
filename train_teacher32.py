@@ -11,6 +11,8 @@ import sys
 import soundfile as sf
 import torch
 import torchaudio
+from f5_tts.model import trainer as _trainer_mod
+from f5_tts.train.finetune_cli import main as _finetune_main
 
 
 def _load(path, *args, **kwargs):
@@ -23,12 +25,6 @@ def _info(path, *args, **kwargs):
     return type("I", (), {"sample_rate": info.samplerate, "num_frames": info.frames})()
 
 
-torchaudio.load = _load
-torchaudio.info = _info
-
-from f5_tts.model import trainer as _trainer_mod
-
-
 _orig_train = _trainer_mod.Trainer.train
 
 
@@ -36,36 +32,39 @@ def _lean_train(self, dataset, num_workers=1, **kwargs):
     return _orig_train(self, dataset, num_workers=num_workers, **kwargs)
 
 
-_trainer_mod.Trainer.train = _lean_train
+def main():
+    torchaudio.load = _load
+    torchaudio.info = _info
+    _trainer_mod.Trainer.train = _lean_train
 
-sys.argv = [
-    "finetune_cli",
-    "--exp_name",
-    "F5TTS_v1_Base",
-    "--finetune",
-    "--dataset_name",
-    "TEACHER32",
-    "--epochs",
-    "25",
-    "--batch_size_per_gpu",
-    "1600",
-    "--max_samples",
-    "32",
-    "--grad_accumulation_steps",
-    "2",
-    "--num_warmup_updates",
-    "200",
-    "--save_per_updates",
-    "200",
-    "--last_per_updates",
-    "100",
-    "--keep_last_n_checkpoints",
-    "3",
-    "--learning_rate",
-    "1e-5",
-]
+    sys.argv = [
+        "finetune_cli",
+        "--exp_name",
+        "F5TTS_v1_Base",
+        "--finetune",
+        "--dataset_name",
+        "TEACHER32",
+        "--epochs",
+        "25",
+        "--batch_size_per_gpu",
+        "1600",
+        "--max_samples",
+        "32",
+        "--grad_accumulation_steps",
+        "2",
+        "--num_warmup_updates",
+        "200",
+        "--save_per_updates",
+        "200",
+        "--last_per_updates",
+        "100",
+        "--keep_last_n_checkpoints",
+        "3",
+        "--learning_rate",
+        "1e-5",
+    ]
+    _finetune_main()
 
-from f5_tts.train.finetune_cli import main
 
-
-main()
+if __name__ == "__main__":
+    main()
