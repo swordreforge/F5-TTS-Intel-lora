@@ -11,7 +11,7 @@
 | GPU | Intel Arc Graphics（Xe-LPG 核显，`renderD128`，`torch.xpu.get_device_name` 报此名） |
 | NPU | Intel AI Boost（PyTorch 用不上，忽略） |
 | 内存 | 30G（训练峰值 ~27G，必须关杂项，见 §5） |
-| 系统 | Arch Linux，`/opt/cuda` 存在但**无 N 卡，仅作 torchcodec 残留依赖，无用** |
+| 系统 | Arch Linux（`/opt/cuda` 存在但无 N 卡；torchcodec 即便有它也起不来，见 §2） |
 | Python | venv `f5tts/`，**uv 建，Python 3.12**，无 pip（一切 `uv pip --python f5tts/bin/python`） |
 
 ## 1. 环境安装（顺序不能反）
