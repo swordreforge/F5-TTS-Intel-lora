@@ -61,12 +61,12 @@ def asr_transcribe(wav: str) -> str:
 asr_transcribe._model = None
 
 
-def run_once(gen_text: str, ckpt: str | None, speed: float, out: str) -> bool:
+def run_once(gen_text: str, ckpt: str | None, speed: float, nfe: int, out: str) -> bool:
     """Run one synthesis in an isolated subprocess. Returns True on success."""
     params = {
         "ref_audio": REF_AUDIO, "ref_text": REF_TEXT, "gen_text": gen_text,
         "out_dir": str(Path(out).parent), "out_file": Path(out).name,
-        "speed": speed, "ckpt": ckpt,
+        "speed": speed, "ckpt": ckpt, "nfe": nfe,
     }
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
         json.dump(params, f, ensure_ascii=False)
@@ -95,6 +95,7 @@ def main():
     ap.add_argument("--ckpt", default="finetuned",
                     help="'finetuned' (default), 'base', or path to .pt")
     ap.add_argument("--speed", type=float, default=0.8)
+    ap.add_argument("--nfe", type=int, default=8, help="denoising steps (32=max quality, 16, 8~realtime on XPU)")
     ap.add_argument("--tries", type=int, default=3)
     ap.add_argument("--out", default=str(BASE / "tests/out_32uwgy.wav"))
     args = ap.parse_args()
@@ -114,7 +115,7 @@ def main():
         for i in range(args.tries):
             cand = str(Path(td) / f"try{i}.wav")
             print(f"[try {i+1}/{args.tries}] synthesizing...", flush=True)
-            if not run_once(gen_text, ckpt, args.speed, cand):
+            if not run_once(gen_text, ckpt, args.speed, args.nfe, cand):
                 print(f"[try {i+1}] synthesis failed, skipping")
                 continue
             tr = asr_transcribe(cand)

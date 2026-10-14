@@ -32,6 +32,7 @@ argv = [
     "--gen_text", params["gen_text"],
     "--output_dir", params["out_dir"], "--output_file", params["out_file"],
     "--device", "xpu", "--speed", str(params["speed"]),
+    "--nfe_step", str(params.get("nfe", 16)),
 ]
 if params.get("ckpt"):
     argv += ["--ckpt_file", params["ckpt"]]
