@@ -3,6 +3,7 @@
 Called by infer_32uwgy.py via subprocess; args pass through a JSON file
 to avoid all shell-quoting issues with CJK text.
 """
+
 import json
 import sys
 
@@ -27,17 +28,31 @@ torchaudio.info = _info
 params = json.loads(open(sys.argv[1], encoding="utf-8").read())
 
 argv = [
-    "infer_cli", "--model", "F5TTS_v1_Base",
-    "--ref_audio", params["ref_audio"], "--ref_text", params["ref_text"],
-    "--gen_text", params["gen_text"],
-    "--output_dir", params["out_dir"], "--output_file", params["out_file"],
-    "--device", "xpu", "--speed", str(params["speed"]),
-    "--nfe_step", str(params.get("nfe", 16)),
+    "infer_cli",
+    "--model",
+    "F5TTS_v1_Base",
+    "--ref_audio",
+    params["ref_audio"],
+    "--ref_text",
+    params["ref_text"],
+    "--gen_text",
+    params["gen_text"],
+    "--output_dir",
+    params["out_dir"],
+    "--output_file",
+    params["out_file"],
+    "--device",
+    "xpu",
+    "--speed",
+    str(params["speed"]),
+    "--nfe_step",
+    str(params.get("nfe", 16)),
 ]
 if params.get("ckpt"):
     argv += ["--ckpt_file", params["ckpt"]]
 sys.argv = argv
 
 from f5_tts.infer.infer_cli import main
+
 
 main()

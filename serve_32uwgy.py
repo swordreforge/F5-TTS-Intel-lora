@@ -9,6 +9,7 @@ Run: f5tts/bin/python serve_32uwgy.py [--port 8899]
 Test: curl -X POST localhost:8899/tts -H 'Content-Type: application/json' \
         -d '{"text":"海底的洋流正在变强。"}' --output out.wav
 """
+
 import argparse
 import asyncio
 import io
@@ -37,6 +38,7 @@ torchaudio.info = _info
 from fastapi import FastAPI, Response
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+
 
 BASE = Path("/home/swordreforge/F5-TTS")
 REF_AUDIO = str(BASE / "data/teacher_wavs/extend3.clean.miss_0047.wav")
@@ -88,9 +90,14 @@ def get_asr():
 
 def synth_sync(text: str, speed: float, nfe: int, cfg: float) -> tuple[bytes, int]:
     wav, sr, _ = api.infer(
-        ref_file=REF_AUDIO, ref_text=REF_TEXT, gen_text=text,
-        speed=speed, nfe_step=nfe, cfg_strength=cfg,
-        show_info=lambda *a, **k: None, progress=None,
+        ref_file=REF_AUDIO,
+        ref_text=REF_TEXT,
+        gen_text=text,
+        speed=speed,
+        nfe_step=nfe,
+        cfg_strength=cfg,
+        show_info=lambda *a, **k: None,
+        progress=None,
     )
     torch.xpu.synchronize()
     buf = io.BytesIO()
@@ -121,8 +128,7 @@ def startup():
     ref_file, _ = preprocess_ref_audio_text(REF_AUDIO, REF_TEXT, show_info=lambda *a, **k: None)
     ref_audio_t, ref_sr = torchaudio.load(ref_file)
     # warmup: pay oneDNN JIT + caches upfront (GSV lesson: 启动预热)
-    api.infer(ref_file=REF_AUDIO, ref_text=REF_TEXT, gen_text="预热。",
-              show_info=lambda *a, **k: None, progress=None)
+    api.infer(ref_file=REF_AUDIO, ref_text=REF_TEXT, gen_text="预热。", show_info=lambda *a, **k: None, progress=None)
     torch.xpu.synchronize()
     print("MODEL READY", flush=True)
 
@@ -166,10 +172,19 @@ def tts_stream(req: TTSReq):
             head = chunk_text(head[0], max_chars=15) + head[1:] if head else head
             batches = head + batches[1:]
         stream = infer_batch_process(
-            (ref_audio_t, ref_sr), ref_text_used, batches,
-            api.ema_model, api.vocoder, api.mel_spec_type,
-            progress=None, nfe_step=req.nfe, cfg_strength=req.cfg,
-            speed=req.speed, device=api.device, streaming=True, chunk_size=2048,
+            (ref_audio_t, ref_sr),
+            ref_text_used,
+            batches,
+            api.ema_model,
+            api.vocoder,
+            api.mel_spec_type,
+            progress=None,
+            nfe_step=req.nfe,
+            cfg_strength=req.cfg,
+            speed=req.speed,
+            device=api.device,
+            streaming=True,
+            chunk_size=2048,
         )
         import numpy as np
 

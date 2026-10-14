@@ -11,6 +11,7 @@ Usage:
   f5tts/bin/python infer_32uwgy.py --text "要合成的中文" [--out out.wav]
   f5tts/bin/python infer_32uwgy.py --text-file article.txt [--ckpt base] [--speed 0.8] [--tries 3]
 """
+
 import argparse
 import json
 import re
@@ -21,6 +22,7 @@ import tempfile
 from pathlib import Path
 
 import soundfile as sf
+
 
 BASE = Path("/home/swordreforge/F5-TTS")
 # Verified-clean canonical ref (teacher clip, exact transcript)
@@ -64,9 +66,14 @@ asr_transcribe._model = None
 def run_once(gen_text: str, ckpt: str | None, speed: float, nfe: int, out: str) -> bool:
     """Run one synthesis in an isolated subprocess. Returns True on success."""
     params = {
-        "ref_audio": REF_AUDIO, "ref_text": REF_TEXT, "gen_text": gen_text,
-        "out_dir": str(Path(out).parent), "out_file": Path(out).name,
-        "speed": speed, "ckpt": ckpt, "nfe": nfe,
+        "ref_audio": REF_AUDIO,
+        "ref_text": REF_TEXT,
+        "gen_text": gen_text,
+        "out_dir": str(Path(out).parent),
+        "out_file": Path(out).name,
+        "speed": speed,
+        "ckpt": ckpt,
+        "nfe": nfe,
     }
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
         json.dump(params, f, ensure_ascii=False)
@@ -74,7 +81,9 @@ def run_once(gen_text: str, ckpt: str | None, speed: float, nfe: int, out: str) 
     try:
         r = subprocess.run(
             [str(BASE / "f5tts/bin/python"), str(BASE / "infer_once.py"), param_file],
-            capture_output=True, text=True, timeout=900,
+            capture_output=True,
+            text=True,
+            timeout=900,
         )
         if r.returncode != 0:
             print("infer subprocess failed:")
@@ -92,8 +101,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--text", default="", help="single sentence to synthesize")
     ap.add_argument("--text-file", default="", help="file: one sentence per line")
-    ap.add_argument("--ckpt", default="finetuned",
-                    help="'finetuned' (default), 'base', or path to .pt")
+    ap.add_argument("--ckpt", default="finetuned", help="'finetuned' (default), 'base', or path to .pt")
     ap.add_argument("--speed", type=float, default=0.8)
     ap.add_argument("--nfe", type=int, default=8, help="denoising steps (32=max quality, 16, 8~realtime on XPU)")
     ap.add_argument("--tries", type=int, default=3)
@@ -114,20 +122,20 @@ def main():
         keep = str(Path(td) / "best.wav")
         for i in range(args.tries):
             cand = str(Path(td) / f"try{i}.wav")
-            print(f"[try {i+1}/{args.tries}] synthesizing...", flush=True)
+            print(f"[try {i + 1}/{args.tries}] synthesizing...", flush=True)
             if not run_once(gen_text, ckpt, args.speed, args.nfe, cand):
-                print(f"[try {i+1}] synthesis failed, skipping")
+                print(f"[try {i + 1}] synthesis failed, skipping")
                 continue
             tr = asr_transcribe(cand)
             k = repeat_len(tr, REF_TEXT)
             dur = round(sf.info(cand).duration, 2)
-            print(f"[try {i+1}] repeat_len={k} dur={dur}s asr_head={tr[:30]}")
+            print(f"[try {i + 1}] repeat_len={k} dur={dur}s asr_head={tr[:30]}")
             if k < best_k:
                 best, best_k = tr, k
                 shutil.copy(cand, keep)
                 if k < 6:
                     shutil.copy(cand, args.out)
-                    print(f"ACCEPT try {i+1}: {args.out}")
+                    print(f"ACCEPT try {i + 1}: {args.out}")
                     return
         shutil.copy(keep, args.out)
         print(f"ALL TRIED, keeping shortest repeat ({best_k} chars): {args.out}\ntranscript: {best}")

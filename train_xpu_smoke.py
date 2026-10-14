@@ -23,20 +23,32 @@ torchaudio.info = _info
 
 sys.argv = [
     "finetune_cli",
-    "--exp_name", "F5TTS_v1_Base",
+    "--exp_name",
+    "F5TTS_v1_Base",
     "--finetune",
-    "--dataset_name", "XPU_SMOKE",
-    "--epochs", "1",
-    "--batch_size_per_gpu", "3200",
-    "--max_samples", "2",
-    "--grad_accumulation_steps", "1",
-    "--num_warmup_updates", "5",
-    "--save_per_updates", "2",
-    "--last_per_updates", "2",
-    "--keep_last_n_checkpoints", "1",
-    "--learning_rate", "1e-5",
+    "--dataset_name",
+    "XPU_SMOKE",
+    "--epochs",
+    "1",
+    "--batch_size_per_gpu",
+    "3200",
+    "--max_samples",
+    "2",
+    "--grad_accumulation_steps",
+    "1",
+    "--num_warmup_updates",
+    "5",
+    "--save_per_updates",
+    "2",
+    "--last_per_updates",
+    "2",
+    "--keep_last_n_checkpoints",
+    "1",
+    "--learning_rate",
+    "1e-5",
 ]
 
 from f5_tts.train.finetune_cli import main
+
 
 main()
